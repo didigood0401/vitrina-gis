@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Витрина данных по строительству</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef1f0;--pn:#fff;--tn:#e3e8e6;--ink:#17242b;--mut:#51616a;--acc:#0c6b5f;--warn:#a84a12;--warnbg:#fbeadd}
+*{box-sizing:border-box;margin:0}
+html{-webkit-text-size-adjust:100%}
+body{font:400 15px/1.45 "IBM Plex Sans",Arial,sans-serif;background:var(--bg);color:var(--ink);font-variant-numeric:tabular-nums}
+button{font:inherit;color:inherit}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 16px;background:var(--ink);color:#fff;flex-wrap:wrap}
+.bar h1{font-size:17px;font-weight:600}
+.bar span{font-size:13px;color:#b9c7c4}
+.src{display:flex;gap:6px;flex-wrap:wrap;padding:10px 16px;align-items:center}
+.src b{font-weight:500;font-size:13px;color:var(--mut);margin-right:4px}
+.src button{min-height:40px;padding:0 12px;border:0;background:var(--tn);font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:7px;border-radius:3px;transition:background .2s,color .2s,transform .2s}
+.src button:active{transform:scale(.97)}
+.src button i{width:9px;height:9px;border-radius:50%;background:var(--c)}
+.src button[aria-pressed=false]{background:none;color:var(--mut);text-decoration:line-through}
+.src button[aria-pressed=false] i{background:#aab5b2}
+.kpi{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--tn);margin:0 16px}
+.kpi div{background:var(--pn);padding:10px 14px}
+.kpi b{display:block;font-size:24px;font-weight:600;line-height:1.15}
+.kpi span{font-size:13px;color:var(--mut)}
+.kpi .w b{color:var(--warn)}
+.app{display:grid;grid-template-columns:270px minmax(0,1fr) 400px;gap:10px;padding:10px 16px 16px;height:calc(100vh - 186px);min-height:560px}
+.pn{background:var(--pn);border-radius:3px;overflow:auto}
+.ls button{display:block;width:100%;text-align:left;padding:10px 13px;border:0;background:none;cursor:pointer;border-left:3px solid transparent;transition:background .2s}
+.ls button:hover{background:var(--bg)}
+.ls button[aria-selected=true]{background:#dcece8;border-left-color:var(--acc)}
+.ls b{display:block;font-weight:500}
+.ls small{font-size:13px;color:var(--mut)}
+.ls em{font-style:normal;font-size:13px;color:var(--warn);font-weight:500}
+#v{position:relative;background:#dfe6e4;border-radius:3px;overflow:hidden}
+canvas{display:block;width:100%;height:100%}
+.tag{position:absolute;left:12px;bottom:12px;background:var(--pn);padding:7px 11px;border-radius:3px;font-size:13px;pointer-events:none}
+.cd{padding:14px 16px}
+.cd h2{font-size:19px;font-weight:600;line-height:1.2}
+.cd .kn{font-size:13px;color:var(--mut);margin-top:2px}
+.st{margin:12px 0 4px;height:6px;background:var(--tn);overflow:hidden}
+.st i{display:block;height:100%;background:var(--acc);width:0;transition:width .7s cubic-bezier(.22,1,.36,1)}
+.stl{font-size:13px;color:var(--mut)}
+.alert{margin-top:10px;background:var(--warnbg);color:var(--warn);padding:9px 11px;font-size:14px;font-weight:500}
+table{border-collapse:collapse;width:100%;margin-top:10px}
+th{font-size:13px;font-weight:600;text-align:left;padding:11px 0 4px;color:var(--ink)}
+th i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
+td{padding:4px 0;border-bottom:1px solid var(--tn);font-size:14px;vertical-align:top}
+td:first-child{color:var(--mut);width:46%;padding-right:10px}
+td.no{color:#7a8a86}
+td.bad{color:var(--warn);font-weight:500}
+.fade{animation:f .4s ease both}
+@keyframes f{from{opacity:0;transform:translateY(6px)}}
+.exp{margin-top:14px;min-height:42px;padding:0 15px;background:var(--acc);color:#fff;border:0;border-radius:3px;font-weight:500;cursor:pointer;transition:background .2s}
+.exp:hover{background:#094f46}
+.note{padding:0 16px 14px;font-size:13px;color:var(--mut)}
+:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+@media(max-width:1020px){.app{grid-template-columns:1fr;height:auto}#v{height:46vh;min-height:300px;order:-1}.ls{display:flex;overflow-x:auto}.ls button{flex:none;width:210px;border-left:0;border-bottom:3px solid transparent}.ls button[aria-selected=true]{border-bottom-color:var(--acc)}.kpi{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="bar"><h1>Витрина данных по строительству</h1><span>Демо-прототип: объекты и значения условные</span></header>
+<div class="src" id="src" role="group" aria-label="Источники"><b>Источники</b></div>
+<div class="kpi" id="kpi"></div>
+<main class="app">
+<nav class="pn ls" id="ls" role="listbox" aria-label="Объекты"></nav>
+<div id="v"><div class="tag" id="tag"></div></div>
+<aside class="pn cd" id="cd" aria-live="polite"></aside>
+</main>
+<p class="note">Источники в демо смоделированы. Состав полей и способы подключения определяются доступами и ТЗ заказчика.</p>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+var S=[['nspd','НСПД','#2c6fbb'],['stroy','Стройкомплекс.рф','#0c6b5f'],['tp','ФГИС ТП','#7a5bb0'],['knd','ГИС ТОР КНД','#b5541c'],['inv','ГИС «Капиталовложения»','#8a7a12']];
+var on={nspd:1,stroy:1,tp:1,knd:1,inv:1};
+var O=[
+{n:'Жилой дом, корпус 1',k:'00:00:0000101:11',st:'Монолит, 14 этаж',p:62,x:-9,z:-6,w:6,d:12,f:22,a:4210,a2:4210,rs:'00-000-101-2026',ok:'до 12.2027',zone:'Ж-1, многоэтажная застройка',doc:'Генплан, ред. 2025',chk:3,v:0,inv:1840,ag:'нет'},
+{n:'Школа на 550 мест',k:'00:00:0000101:27',st:'Отделка',p:84,x:6,z:-8,w:13,d:8,f:4,a:15300,a2:15300,rs:'00-000-102-2025',ok:'до 08.2027',zone:'ОД-2, социальные объекты',doc:'Генплан, ред. 2025',chk:5,v:1,inv:1120,ag:'нет'},
+{n:'Логистический центр',k:'00:00:0000102:04',st:'Каркас',p:38,x:-8,z:10,w:17,d:10,f:3,a:62000,a2:58400,rs:'00-000-103-2026',ok:'до 03.2028',zone:'П-1, производственная зона',doc:'ПЗЗ, ред. 2024',chk:2,v:2,inv:4650,ag:'СЗПК, заключено'},
+{n:'Поликлиника',k:'00:00:0000102:19',st:'Ввод в эксплуатацию',p:97,x:8,z:7,w:9,d:9,f:5,a:9800,a2:9800,rs:'00-000-104-2024',ok:'12.2026',zone:'ОД-2, социальные объекты',doc:'Генплан, ред. 2025',chk:7,v:0,inv:980,ag:'нет'},
+{n:'Технопарк, блок А',k:'00:00:0000103:02',st:'Фундамент',p:14,x:20,z:-1,w:7,d:14,f:7,a:21500,a2:21900,rs:'00-000-105-2026',ok:'до 06.2028',zone:'П-2, научно-производственная',doc:'ПЗЗ, ред. 2024',chk:1,v:0,inv:2760,ag:'СЗПК, на согласовании'},
+{n:'Жилой дом, корпус 2',k:'00:00:0000101:12',st:'Монолит, 6 этаж',p:31,x:-21,z:-3,w:6,d:12,f:18,a:3980,a2:3980,rs:'00-000-106-2026',ok:'до 09.2028',zone:'Ж-1, многоэтажная застройка',doc:'Генплан, ред. 2025',chk:2,v:1,inv:1510,ag:'нет'}];
+var cur=0,$=function(i){return document.getElementById(i)},fmt=function(n){return n.toLocaleString('ru-RU')};
+S.forEach(function(s){var b=document.createElement('button');b.type='button';b.setAttribute('aria-pressed','true');b.style.setProperty('--c',s[2]);b.innerHTML='<i></i>'+s[1];b.onclick=function(){on[s[0]]=on[s[0]]?0:1;b.setAttribute('aria-pressed',!!on[s[0]]);ui()};$('src').appendChild(b)});
+O.forEach(function(o,i){var b=document.createElement('button');b.type='button';b.setAttribute('role','option');b.onclick=function(){sel(i)};$('ls').appendChild(b);o.btn=b});
+function bad(o){return on.nspd&&on.stroy&&o.a!=o.a2}
+function ui(){
+ var inv=O.reduce(function(s,o){return s+o.inv},0),vi=O.reduce(function(s,o){return s+o.v},0),cf=O.filter(bad).length;
+ $('kpi').innerHTML=[['Объектов в витрине',O.length],['Инвестиции, млн ₽',on.inv?fmt(inv):'нет данных'],['Открытых нарушений',on.knd?vi:'нет данных'],['Расхождений между системами',(on.nspd&&on.stroy)?cf:'нет данных']].map(function(k,i){return '<div'+(i==3&&cf&&on.nspd&&on.stroy?' class="w"':'')+'><b>'+k[1]+'</b><span>'+k[0]+'</span></div>'}).join('');
+ O.forEach(function(o,i){o.btn.setAttribute('aria-selected',i==cur);o.btn.innerHTML='<b>'+o.n+'</b><small>'+o.st+'</small>'+(bad(o)?' <em>расхождение</em>':'')});
+ card()}
+function row(a,b,c){return '<tr><td>'+a+'</td><td'+(c?' class="'+c+'"':'')+'>'+b+'</td></tr>'}
+function sec(id,rows){var s=S.filter(function(x){return x[0]==id})[0],h='<tr><th colspan="2"><i style="background:'+s[2]+'"></i>'+s[1]+'</th></tr>';return on[id]?h+rows:h+'<tr><td colspan="2" class="no">Источник отключён</td></tr>'}
+function card(){var o=O[cur],b=bad(o);
+ $('cd').innerHTML='<div class="fade"><h2>'+o.n+'</h2><p class="kn">Кадастровый номер '+o.k+'</p><div class="st"><i id="pg"></i></div><p class="stl">'+o.st+', готовность '+o.p+'%</p>'+(b?'<p class="alert">Площадь в НСПД и в разрешении расходится на '+fmt(Math.abs(o.a-o.a2))+' м²</p>':'')+'<table>'+
+ sec('nspd',row('Кадастровый номер',o.k)+row('Площадь участка, м²',fmt(o.a),b?'bad':''))+
+ sec('stroy',row('Разрешение на строительство',o.rs)+row('Площадь по разрешению, м²',fmt(o.a2),b?'bad':'')+row('Срок действия',o.ok))+
+ sec('tp',row('Документ',o.doc)+row('Зона',o.zone))+
+ sec('knd',row('Проверок',o.chk)+row('Открытых нарушений',o.v,o.v?'bad':''))+
+ sec('inv',row('Объём, млн ₽',fmt(o.inv))+row('Соглашение',o.ag))+
+ '</table><button class="exp" id="ex" type="button">Выгрузить в CSV</button></div>';
+ requestAnimationFrame(function(){requestAnimationFrame(function(){var p=$('pg');if(p)p.style.width=o.p+'%'})});
+ $('ex').onclick=csv;$('tag').textContent=o.n+', готовность '+o.p+'%'}
+function csv(){var h=['Объект','Кадастровый номер','Стадия','Готовность %'];var f=[];if(on.nspd){h.push('Площадь НСПД');f.push('a')}if(on.stroy){h.push('Площадь РС','Разрешение');f.push('a2','rs')}if(on.tp){h.push('Зона');f.push('zone')}if(on.knd){h.push('Нарушения');f.push('v')}if(on.inv){h.push('Инвестиции млн');f.push('inv')}
+ var r=[h.join(';')].concat(O.map(function(o){return [o.n,o.k,o.st,o.p].concat(f.map(function(k){return o[k]})).join(';')})),a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+r.join('\n')],{type:'text/csv'}));a.download='vitrina-demo.csv';a.click()}
+// 3D-квартал
+var el=$('v'),r=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});r.setPixelRatio(Math.min(devicePixelRatio,2));r.shadowMap.enabled=true;r.shadowMap.type=THREE.PCFSoftShadowMap;el.insertBefore(r.domElement,el.firstChild);
+var sc=new THREE.Scene();sc.background=new THREE.Color('#dfe6e4');
+var cam=new THREE.PerspectiveCamera(36,1,.5,400),ctl=new THREE.OrbitControls(cam,r.domElement);ctl.maxPolarAngle=1.42;ctl.minDistance=18;ctl.maxDistance=130;
+sc.add(new THREE.HemisphereLight('#ffffff','#aab5b2',.5));
+var sun=new THREE.DirectionalLight('#fff6ea',.5);sun.position.set(-30,60,28);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);var c=sun.shadow.camera;c.left=-55;c.right=55;c.top=55;c.bottom=-55;c.far=160;sc.add(sun);
+function mesh(g,col,x,y,z){var m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:col,roughness:.85}));m.position.set(x,y,z);m.castShadow=m.receiveShadow=true;sc.add(m);return m}
+var g=mesh(new THREE.BoxGeometry(90,.4,70),'#d3dbd8',0,-.2,0);g.castShadow=false;
+[[0,0,90,3],[0,1,3,70],[-15,1,3,70],[15,1,3,70]].forEach(function(a,i){var m=mesh(new THREE.BoxGeometry(i==0?90:a[2],.06,i==0?a[3]:70),'#f4f6f5',i==0?0:a[0],.04,0);m.castShadow=false});
+var FH=.42,SEL=new THREE.Color('#0c6b5f'),BASE=new THREE.Color('#fbfcfb'),WARN=new THREE.Color('#c96a2c');
+O.forEach(function(o,i){var pad=mesh(new THREE.BoxGeometry(o.w+3,.08,o.d+3),'#c3cec9',o.x,.06,o.z);pad.castShadow=false;o.pad=pad;
+ var h=Math.max(.5,o.f*FH),b=mesh(new THREE.BoxGeometry(o.w,1,o.d),'#fbfcfb',o.x,0,o.z);b.scale.y=.001;b.userData.i=i;o.m=b;o.h=h*Math.max(.18,o.p/100);o.full=h;
+ var cage=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(o.w,h,o.d)),new THREE.LineBasicMaterial({color:'#8b9a96'}));cage.position.set(o.x,h/2+.1,o.z);sc.add(cage)});
+[[-28,-24,8,8,5],[-4,-25,9,7,9],[24,-24,10,8,6],[-29,24,9,9,4],[4,25,11,7,7],[30,22,7,9,10],[34,-12,7,8,5]].forEach(function(a){mesh(new THREE.BoxGeometry(a[2],a[4]*FH,a[3]),'#e9edeb',a[0],a[4]*FH/2,a[1])});
+var ray=new THREE.Raycaster(),P=new THREE.Vector2(),dn=null;
+r.domElement.addEventListener('pointerdown',function(e){dn=[e.clientX,e.clientY]});
+r.domElement.addEventListener('pointerup',function(e){if(!dn||Math.hypot(e.clientX-dn[0],e.clientY-dn[1])>5)return;var b=r.domElement.getBoundingClientRect();P.set((e.clientX-b.left)/b.width*2-1,-(e.clientY-b.top)/b.height*2+1);ray.setFromCamera(P,cam);var h=ray.intersectObjects(O.map(function(o){return o.m}));if(h.length)sel(h[0].object.userData.i)});
+function draw(){r.render(sc,cam)}
+ctl.addEventListener('change',draw);
+function size(){var w=el.clientWidth,h=el.clientHeight;r.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();draw()}addEventListener('resize',size);
+var RM=matchMedia('(prefers-reduced-motion:reduce)').matches,raf=0,t0=0,fp=new THREE.Vector3(),ft=new THREE.Vector3(),tp=new THREE.Vector3(),tt=new THREE.Vector3();
+function ease(t){return 1-Math.pow(1-t,3)}
+function paint(){O.forEach(function(o,i){o.m.material.color.copy(i==cur?(bad(o)?WARN:SEL):BASE);o.pad.material.color.set(i==cur?'#a9c7c0':'#c3cec9')})}
+function sel(i){cur=i;ui();paint();var o=O[i];fp.copy(cam.position);ft.copy(ctl.target);tt.set(o.x,o.h*.5,o.z);tp.set(o.x-26,20,o.z+34);t0=performance.now();cancelAnimationFrame(raf);if(RM){cam.position.copy(tp);ctl.target.copy(tt);ctl.update();draw();return}anim()}
+function anim(){var k=Math.min(1,(performance.now()-t0)/1100),e=ease(k);cam.position.lerpVectors(fp,tp,e);ctl.target.lerpVectors(ft,tt,e);ctl.update();draw();if(k<1)raf=requestAnimationFrame(anim)}
+var bt0;function grow(n){var k=RM?1:Math.min(1,(n-bt0)/1500),all=true;O.forEach(function(o,i){var q=Math.max(0,Math.min(1,k*1.5-i*.09));q=ease(q);if(q<1)all=false;var h=Math.max(.001,o.h*q);o.m.scale.y=h;o.m.position.y=h/2+.1});draw();if(!all)requestAnimationFrame(grow)}
+cam.position.set(-40,38,54);ctl.target.set(0,2,0);ctl.update();size();ui();paint();bt0=performance.now();requestAnimationFrame(grow);
+window.__t={sel:sel,draw:draw,on:on};
+</script>
+</body>
+</html>
